@@ -7,9 +7,20 @@ app.use("/public/uploads", express.static("public/uploads"));
 const userRouter = require("./src/user/router");
 const categoryRouter = require("./src/category/router");
 const productRouter = require("./src/product/router");
+const orderRouter=require('./src/order/router')
+const paymentRouter=require('./src/payment/router') 
+const bannerRouter=require('./src/banner/router') 
+
+
+
+
 app.use("/user", userRouter);
 app.use("/category", categoryRouter);
 app.use("/product", productRouter);
+app.use('/order',orderRouter)
+app.use('/payment',paymentRouter)
+app.use('/banner',bannerRouter)
+
 
 mongoose
   .connect(process.env.DB_URL)
