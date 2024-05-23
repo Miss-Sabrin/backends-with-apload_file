@@ -9,7 +9,7 @@ const ProductSchema = new mongoose.Schema(
       endDate: { type: Date },
     },
     category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-    isTrending: { type: Boolean, default: true },
+    isTrending: { type: Boolean, default: false },
 
     photos: {
       type: [],
