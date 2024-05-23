@@ -12,16 +12,20 @@ module.exports = {
       console.log("password",password)
       console.log("username",username)
       console.log("name",name)
+
       const encryptedPassword = CryptoJS.AES.encrypt(
         password.toString(),
         process.env.PASS_SEC
       ).toString();
+
       const user = await User({
         username: username,
         password: encryptedPassword,
         name: name,
         photo:correctedPath
       }).save();
+
+
       const token = jwt.sign(
         {
           data: user._id,
@@ -38,13 +42,18 @@ module.exports = {
     }
   },
 
+
+
+  //todo login
+
   login: async (req, res) => {
     try {
       const { username, password } = req.body;
       console.log(username, password);
-      const user = await User.findOne({ username: username });
+      const user = await User.findOne({ username});
       if (!user) {
-        return res.status(400).json({ error: "User not found" });
+        return res.status(404).json({ error: "User not found" });
+        
       }
       // console.log(user.password);
       const decryptedPassword = CryptoJS.AES.decrypt(
@@ -57,6 +66,7 @@ module.exports = {
       if (decryptedPassword != password) {
         return res.status(400).json({ error: "Wrong password" });
       }
+
       const token = jwt.sign(
         {
           data: user._id,
@@ -69,10 +79,14 @@ module.exports = {
         status: "success",
         data: { ...user._doc,token },
       });
+
+
     } catch (e) {
       return res.status(401).json({error:e.message});
     }
   },
+
+  //todo get user
   getUser: async (req, res) => {
     try {
       const id = req.params.id;

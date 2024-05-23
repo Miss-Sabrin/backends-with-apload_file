@@ -3,7 +3,7 @@ const ProductSchema = require("./model");
 module.exports = {
   createProduct: async (req, res) => {
     try {
-      const { name, desc, price, salePrice, category } = req.body;
+      const { name, desc, price, salePrice, category,quantity } = req.body;
       const photos = req.files.map((file) => {
         let correctedPath =
           process.env.IMAGE_URL + file.path.replace(/\\/g, "/");
@@ -15,6 +15,7 @@ module.exports = {
         price: price,
         salePrice: salePrice,
         category: category,
+        quantity:quantity,
         photos: photos,
       }).save();
       res.status(201).json({ product });
