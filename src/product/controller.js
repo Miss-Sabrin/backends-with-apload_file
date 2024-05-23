@@ -16,7 +16,7 @@ module.exports = {
       if (req.files && req.files.length > 0) {
         photos = req.files.map((file) => {
           let correctedPath =
-            process.env.IMAGE_URL + "/" + file.path.replace(/\\/g, "/");
+            process.env.IMAGE_URL + file.path.replace(/\\/g, "/");
           return correctedPath;
         });
       } else {
@@ -42,6 +42,24 @@ module.exports = {
       res.status(201).json({ product });
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  },
+
+  getProductsByCategory: async (req, res) => {
+    try {
+      const { categoryId } = req.params;
+
+      const products = await ProductSchema.find({
+        category: categoryId,
+      }).populate("category");
+      if (!products.length) {
+        return res
+          .status(404)
+          .json({ message: "No products found in this category" });
+      }
+      res.status(200).json({ products });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   },
 
