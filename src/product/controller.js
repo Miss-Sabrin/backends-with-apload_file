@@ -27,13 +27,20 @@ module.exports = {
 
       // Create and save the product
       const product = new ProductSchema({
+
+      const { name, desc, price, salePrice, category } = req.body;
+      const photos = req.files.map((file) => {
+        let correctedPath =
+          process.env.IMAGE_URL + file.path.replace(/\\/g, "/");
+        return correctedPath;
+      });
+      const product = await ProductSchema({
+
         name: name,
         desc: desc,
         price: price,
         salePrice: salePrice,
         category: category,
-        isTrending: isTrending,
-        units: units,
         photos: photos,
       });
 
