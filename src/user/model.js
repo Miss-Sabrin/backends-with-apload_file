@@ -28,4 +28,4 @@ UserSchema.virtual("photoURL").get(function () {
       );
     }
 });
-module.exports=mongoose.model("UserModel",UserSchema)
+module.exports=mongoose.model("user",UserSchema)
