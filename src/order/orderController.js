@@ -1,95 +1,90 @@
 const Order = require("./orderModel");
+const mongoose = require("mongoose");
+const payment = require("../payment/paymentModel");
+const { payByWaafiPay } = require("../../src/payment");
+module.exports = {
+  createOrder: async (req, res) => {
+    try {
+      const {
+        user,
+        payment: paymentID,
+        products,
+        total,
+        note,
+        phone,
+      } = req.body;
 
-exports.createOrder = async (req, res) => {
-  try {
-    const {
-      productId,
-      category,
-      user,
-      paymentMethod,
-      status,
-      desc,
-      quantity,
-      total,
-    } = req.body;
-    const order = new Order({
-      productId,
-      category,
-      user,
-      paymentMethod,
-      status,
-      desc,
-      quantity,
-      total,
-    });
-    await order.save();
-    res.status(201).json(order);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-//todo all data 
-exports.fetchOrders = async (req, res) => {
-  try {
-    const orders = await Order.find()
-      .populate("productId")
-      .populate("category")
-      .populate("user");
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+      console.log(paymentID);
+      console.log(phone);
+      const paymentMethod = await payment.findById(paymentID);
+      if (paymentMethod.name === "CASH") {
+        const order = await Order({
+          user: user,
+          payment: paymentID,
+          products: products,
+          total: total,
+          note: note,
+          phone: phone,
+        }).save();
 
+        res.status(201).json(order);
+      } else {
+        const waafiResponse = await payByWaafiPay({
+          phone: phone,
+          amount: total,
+          merchantUid: process.env.merchantUid,
+          apiUserId: process.env.apiUserId,
+          apiKey: process.env.apiKey,
+        });
+        if (waafiResponse.status) {
+          const order = await Order({
+            user: user,
+            payment: paymentID,
+            products: products,
+            total: total,
+            note: note,
+            phone: phone,
+          }).save();
 
- //todo find by id
- exports.getOrder=async(req,res)=>{
-    try{
-        const order=await Order.findById(req.params.id)
+          res.status(201).json(order);
+        } else {
+          // Handling payment failure
+          // return res.status(400).send({
+          //   status: "failed",
+          //   message: `${waafiResponse.error}` ?? "Payment Failed Try Again",
+          // });
+          const order = await Order({
+            user: user,
+            payment: paymentID,
+            products: products,
+            total: total,
+            note: note,
+            phone: phone,
+          }).save();
 
-
-        res.status(200).json({status:"success",data:order})
-
-    }catch(e){
-        res.status(401).json({status:"fail",message:e.toString()});
-    }
-
-}
-
-     ///todo delete product
-     exports.deleteOrder=async(req,res)=>{
-        try{
-            const order=await Order.findByIdAndDelete(req.params.id);
-
-
-            res.status(200).json({status:"success",data:'succesfullay deleted'})
-
-
-
-        }catch(e){
-            res.status(401).json({status:"fail",message:e.toString()});
+          res.status(201).json(order);
         }
-
-    },
-
-    
-//      //todo update product
-   exports.updateOrder=async(req,res)=>{
-    try{
-        const order=await Order.findByIdAndUpdate(req.params.id, req.body,{
-            new:true,
-    });
-
-
-        res.status(200).json({status:"success",data:Order})
-
-
-
-    }catch(e){
-        res.status(401).json({status:"fail",message:e.toString()});
+      }
+    } catch (e) {
+      res.status(400).json({ error: e.message });
     }
+  },
 
-}
-
-
-
+  getOrders: async (req, res) => {
+    try {
+      const orders = await Order.find()
+      
+        .populate("payment")
+        .populate({
+          path: 'products',
+          populate: {
+              path: 'product', // If products have further nested references
+              model: 'Product'        // Model name for products
+          }
+      });
+      res.status(200).json(orders);
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  },
+};

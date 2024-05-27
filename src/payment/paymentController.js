@@ -1,47 +1,29 @@
-//const user = require('../models/user');
-const Payment=require('./paymentModel');
-
-
-module.exports={
-    //todo create payment 👍
-    createPayment:async(req,res)=>{
-        try{
-            const {name,description,type}=req.body;
-
-        const payment= await Payment({
-                name:name,
-               description:description,
-               type:type
-            ,
-            }).save();
-
-
-            res.status(200).json({status:"success",data:payment})
-
-
-        }catch(e){
-            res.status(401).json({status:"fail",message:e.toString()});
-        }
-
-    },
-
-    ///todo get data
-    getPayment:async(req,res)=>{
-        try{
-
-       const payments=await Payment.find()
-
-
-            res.status(200).json({status:"success",data:payments})
-
-        }catch(e){
-            res.status(401).json({status:"fail",message:e.toString()});
-        }
-
-    },
-
+const Payment = require("./paymentModel");
+module.exports = {
+  createPayment: async (req, res) => {
+    try {
+      const { name, desc } = req.body;
+      const payment = await Payment({ name, desc }).save();
+      res.status(201).json(payment);
+    } catch (e) {
+      res.status(400).json({ error: error.message });
+    }
+  },
+  getPayments: async (req, res) => {
+    try {
+      const payments = await Payment.find();
+      res.status(200).json(payments);
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  },
+  getPayment: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const payment = await Payment.findById(id);
+      res.status(200).json( payment );
+    } catch (e) {
+      res.status(400).json({ error: error.message });
+    }
+  },
 };
-
-
-
-

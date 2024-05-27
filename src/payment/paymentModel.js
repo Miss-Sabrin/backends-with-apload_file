@@ -1,22 +1,13 @@
-const mongoose=require('mongoose');
+const mongoose = require("mongoose");
 
-const PaymentSchema=new mongoose.Schema(
-    {
-        name:{
-            type:String,
-            required:true,
+const PaymentSchema = new mongoose.Schema(
+  {
+    name: { type: String, default: "EVC",enum:["EVC","CASH"] },
+    des: String,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-        },
-        description:{
-            type:String,
-
-        },
-        type:{
-            type:String
-        }
-
-
-    }
-)
-
-module.exports=mongoose.model('payment',PaymentSchema);
+module.exports = mongoose.model("Payment", PaymentSchema);
