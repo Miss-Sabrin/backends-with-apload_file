@@ -5,7 +5,7 @@ module.exports = {
       const { name, desc } = req.body;
       const payment = await Payment({ name, desc }).save();
       res.status(201).json(payment);
-    } catch (e) {
+    } catch (error) {
       res.status(400).json({ error: error.message });
     }
   },
