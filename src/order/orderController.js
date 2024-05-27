@@ -1,7 +1,7 @@
 const Order = require("./orderModel");
 const mongoose = require("mongoose");
-const payment = require("../payment/paymentModel");
-const { payByWaafiPay } = require("../../src/payment");
+const payment = require("../payment/model");
+const { payByWaafiPay } = require("../payment/payment");
 module.exports = {
   createOrder: async (req, res) => {
     try {
@@ -49,22 +49,30 @@ module.exports = {
           res.status(201).json(order);
         } else {
           // Handling payment failure
-          // return res.status(400).send({
-          //   status: "failed",
-          //   message: `${waafiResponse.error}` ?? "Payment Failed Try Again",
-          // });
-          const order = await Order({
-            user: user,
-            payment: paymentID,
-            products: products,
-            total: total,
-            note: note,
-            phone: phone,
-          }).save();
-
-          res.status(201).json(order);
+          return res.status(400).send({
+            status: "failed",
+            message: `${waafiResponse.error}` ?? "Payment Failed Try Again",
+          });
         }
       }
+    } catch (e) {
+      res.status(400).json({ error: e.message });
+    }
+  },
+
+  getUserOrders: async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const orders = await Order.find({ user: userId })
+        .populate("payment")
+        .populate({
+          path: "products",
+          populate: {
+            path: "product",
+            model: "Product",
+          },
+        });
+      res.status(200).json(orders);
     } catch (e) {
       res.status(400).json({ error: e.message });
     }
@@ -73,15 +81,15 @@ module.exports = {
   getOrders: async (req, res) => {
     try {
       const orders = await Order.find()
-      
+
         .populate("payment")
         .populate({
-          path: 'products',
+          path: "products",
           populate: {
-              path: 'product', // If products have further nested references
-              model: 'Product'        // Model name for products
-          }
-      });
+            path: "product",
+            model: "Product",
+          },
+        });
       res.status(200).json(orders);
     } catch (e) {
       res.status(400).json({ error: e.message });

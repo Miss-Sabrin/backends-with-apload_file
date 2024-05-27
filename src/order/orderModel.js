@@ -10,8 +10,8 @@ const OrderSchema = new mongoose.Schema(
         quantity: { type: Number, default: 1 },
       },
     ],
-    total:Number,
-    phone:Number,
+    total: Number,
+    phone: Number,
     note: String,
   },
   {
