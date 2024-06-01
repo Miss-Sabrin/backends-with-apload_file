@@ -1,7 +1,11 @@
 const Order = require("./orderModel");
 const mongoose = require("mongoose");
-const payment = require("../payment/model");
+const Payment = require("../payment/model");
 const { payByWaafiPay } = require("../payment/payment");
+
+
+
+
 module.exports = {
   createOrder: async (req, res) => {
     try {
@@ -14,9 +18,12 @@ module.exports = {
         phone,
       } = req.body;
 
-      console.log(paymentID);
-      console.log(phone);
-      const paymentMethod = await payment.findById(paymentID);
+      // Validate payment method
+      const paymentMethod = await Payment.findById(paymentID);
+      if (!paymentMethod) {
+        return res.status(400).json({ error: "Invalid payment method" });
+      }
+
       if (paymentMethod.name === "CASH") {
         const order = await Order({
           user: user,
@@ -27,7 +34,7 @@ module.exports = {
           phone: phone,
         }).save();
 
-        res.status(201).json(order);
+        return res.status(201).json(order);
       } else {
         const waafiResponse = await payByWaafiPay({
           phone: phone,
@@ -36,6 +43,7 @@ module.exports = {
           apiUserId: process.env.apiUserId,
           apiKey: process.env.apiKey,
         });
+
         if (waafiResponse.status) {
           const order = await Order({
             user: user,
@@ -46,12 +54,12 @@ module.exports = {
             phone: phone,
           }).save();
 
-          res.status(201).json(order);
+          return res.status(201).json(order);
         } else {
           // Handling payment failure
           return res.status(400).send({
             status: "failed",
-            message: `${waafiResponse.error}` ?? "Payment Failed Try Again",
+            message:` ${waafiResponse.error}` ?? "Payment Failed Try Again",
           });
         }
       }
@@ -59,6 +67,11 @@ module.exports = {
       res.status(400).json({ error: e.message });
     }
   },
+
+
+
+
+
 
   getUserOrders: async (req, res) => {
     try {
@@ -81,7 +94,6 @@ module.exports = {
   getOrders: async (req, res) => {
     try {
       const orders = await Order.find()
-
         .populate("payment")
         .populate({
           path: "products",
@@ -95,4 +107,16 @@ module.exports = {
       res.status(400).json({ error: e.message });
     }
   },
+
+  //todo deleted
+  deleteOrder: async(req,res)=>{
+    try{
+      const order=await Order.findByIdAndDelete(req.params.id);
+      res.status(200).json({status:"success",data:"succesfullay deleted"})
+
+    }catch(e){
+      res.status(401).json({status:"fail",message:e.toString()})
+    }
+  }
+  
 };

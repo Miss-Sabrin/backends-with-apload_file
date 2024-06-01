@@ -34,4 +34,14 @@ module.exports = {
       res.status(400).json({ error: error.message });
     }
   },
+
+  deleteCategory: async(req,res)=>{
+    try{
+      const category=await Category.findByIdAndDelete(req.params.id);
+      res.status(200).json({status:"success",data:"succesfullay deleted"})
+
+    }catch(e){
+      res.status(401).json({status:"fail",message:e.toString()})
+    }
+  }
 };
