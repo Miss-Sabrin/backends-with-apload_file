@@ -1,20 +1,14 @@
-const mongoose=require('mongoose');
+const mongoose = require("mongoose");
 
-const BannerSchema=new mongoose.Schema(
-    {
-        name: { type: String, required: true },
-        desc: { type: String },
-        photo: { type: String, default: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" },
+const BannerSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+    desc: { type: String },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-    
-      },
-      {
-        timestamps: true,
-      }
-    );
-    
-    module.exports=mongoose.model("Banner",BannerSchema)
-
-
-   
-
+module.exports = mongoose.model("Banner", BannerSchema);

@@ -3,9 +3,6 @@ const mongoose = require("mongoose");
 const Payment = require("../payment/model");
 const { payByWaafiPay } = require("../payment/payment");
 
-
-
-
 module.exports = {
   createOrder: async (req, res) => {
     try {
