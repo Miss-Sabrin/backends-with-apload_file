@@ -56,7 +56,7 @@ module.exports = {
           // Handling payment failure
           return res.status(400).send({
             status: "failed",
-            message: `${waafiResponse.error}` ?? "Payment Failed Try Again",
+            message:` ${waafiResponse.error}` ?? "Payment Failed Try Again",
           });
         }
       }
@@ -64,6 +64,11 @@ module.exports = {
       res.status(400).json({ error: e.message });
     }
   },
+
+
+
+
+
 
   getUserOrders: async (req, res) => {
     try {
@@ -99,4 +104,16 @@ module.exports = {
       res.status(400).json({ error: e.message });
     }
   },
+
+  //todo deleted
+  deleteOrder: async(req,res)=>{
+    try{
+      const order=await Order.findByIdAndDelete(req.params.id);
+      res.status(200).json({status:"success",data:"succesfullay deleted"})
+
+    }catch(e){
+      res.status(401).json({status:"fail",message:e.toString()})
+    }
+  }
+  
 };

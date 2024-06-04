@@ -3,7 +3,7 @@ const ProductSchema = require("./model");
 module.exports = {
   createProduct: async (req, res) => {
     try {
-      const { name, desc, price, isTrending, units, category } = req.body;
+      const { name, desc, price, isTrending, units, category,quantity } = req.body;
 
       // Handle salePrice
       const salePrice = {
@@ -29,6 +29,7 @@ module.exports = {
         name: name,
         desc: desc,
         price: price,
+        quantity:quantity,
         salePrice: salePrice,
         category: category,
         isTrending: isTrending,
@@ -86,4 +87,14 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   },
+
+  deleteProduct: async(req,res)=>{
+    try{
+      const product=await ProductSchema.findByIdAndDelete(req.params.id);
+      res.status(200).json({status:"success",data:"succesfullay deleted"})
+
+    }catch(e){
+      res.status(401).json({status:"fail",message:e.toString()})
+    }
+  }
 };

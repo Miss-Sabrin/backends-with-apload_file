@@ -1,4 +1,4 @@
-const Payment = require("./model");
+const Payment = require("././model");
 module.exports = {
   createPayment: async (req, res) => {
     try {
@@ -24,6 +24,16 @@ module.exports = {
       res.status(200).json(payment);
     } catch (e) {
       res.status(400).json({ error: error.message });
+    }
+  },
+  //delete payment
+  deletePayment: async (req, res) => {
+    try {
+      const payment = await Payment.findByIdAndDelete(req.params.id);
+
+      res.status(200).json({ status: "success", data: "succesfullay deleted" });
+    } catch (e) {
+      res.status(401).json({ status: "fail", message: e.toString() });
     }
   },
 };

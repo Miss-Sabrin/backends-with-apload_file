@@ -81,6 +81,19 @@ module.exports = {
       return res.status(401).json({ error: e.message });
     }
   },
+//todo get users
+getUsers: async (req, res) => {
+  try {
+    const users = await User.find();
+
+    res.status(200).json({ status: "success", data: users });
+  } catch (e) {
+    res.status(401).json({ status: "fail", message: e.toString() });
+  }
+},
+
+
+
 
   //todo get user
   getUser: async (req, res) => {
@@ -148,4 +161,52 @@ module.exports = {
       return res.status(400).json({ error: e.message });
     }
   },
+
+  //todo update user
+updateUser: async (req, res) => {
+    try {
+      const id = req.params.id;
+      const { name, username, password } = req.body;
+      const photo = req.file ? req.file.path : null;
+      const user = await User.findById(id);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      let updatedData = {
+        name: name || user.name,
+        username: username || user.username,
+        photo: photo ? process.env.IMAGE_URL + photo.replace(/\\/g, "/") : user.photo,
+      };
+
+      if (password) {
+        updatedData.password = CryptoJS.AES.encrypt(
+          password.toString(),
+          process.env.PASS_SEC
+        ).toString();
+      }
+
+      await User.findByIdAndUpdate(id, updatedData, { new: true });
+
+      const updatedUser = await User.findById(id);
+
+      return res.status(200).json({
+        status: "success",
+        data: { ...updatedUser._doc },
+      });
+    } catch (e) {
+      return res.status(400).json({ error: e.message });
+    }
+  },
+  deleteUser: async (req, res) => {
+    try {
+      const user = await User.findByIdAndDelete(req.params.id);
+
+      res.status(200).json({ status: "success", data: "succesfullay deleted" });
+    } catch (e) {
+      res.status(401).json({ status: "fail", message: e.toString() });
+    }
+  },
+
 };
